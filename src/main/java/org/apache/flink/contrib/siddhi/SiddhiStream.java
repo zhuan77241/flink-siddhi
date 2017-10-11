@@ -249,6 +249,10 @@ public abstract class SiddhiStream {
 			return this.returnsInternal(outStreamId, SiddhiTypeFactory.getMapTypeInformation());
 		}
 
+		public DataStream<Map<String, Object>> returnAsMap(String outStreamId,String name) {
+			return this.returnsInternal(outStreamId, SiddhiTypeFactory.getMapTypeInformation(),name);
+		}
+
 		/**
 		 * @param outStreamId OutStreamId
 		 * @param outType     Output type class
@@ -262,6 +266,19 @@ public abstract class SiddhiStream {
 
 		private <T> DataStream<T> returnsInternal(String outStreamId, TypeInformation<T> typeInformation) {
 			SiddhiOperatorContext siddhiContext = new SiddhiOperatorContext();
+			siddhiContext.setExecutionPlan(executionPlan);
+			siddhiContext.setInputStreamSchemas(environment.getDataStreamSchemas());
+			siddhiContext.setTimeCharacteristic(environment.getExecutionEnvironment().getStreamTimeCharacteristic());
+			siddhiContext.setOutputStreamId(outStreamId);
+			siddhiContext.setOutputStreamType(typeInformation);
+			siddhiContext.setExtensions(environment.getExtensions());
+			siddhiContext.setExecutionConfig(environment.getExecutionEnvironment().getConfig());
+			return returnsInternal(siddhiContext);
+		}
+
+		private <T> DataStream<T> returnsInternal(String outStreamId, TypeInformation<T> typeInformation,String name) {
+			SiddhiOperatorContext siddhiContext = new SiddhiOperatorContext();
+			siddhiContext.setName(name);
 			siddhiContext.setExecutionPlan(executionPlan);
 			siddhiContext.setInputStreamSchemas(environment.getDataStreamSchemas());
 			siddhiContext.setTimeCharacteristic(environment.getExecutionEnvironment().getStreamTimeCharacteristic());
